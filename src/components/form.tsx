@@ -1,17 +1,23 @@
 "use client";
 
-import { PostInitialize } from "@/services/posting";
+import postApi from "@/api/post";
 import { useState } from "react";
 
-export default function FormPost({ addPost }: any) {
-  const [id, setId] = useState(PostInitialize.length + 1);
-
+export default function FormPost() {
   const [formData, setFormData] = useState({
-    id: 0,
     username: "",
-    time: new Date().toISOString(),
     content: "",
   });
+
+  const createPost = async (newPost: any) => {
+    try {
+      const res = await postApi.post("/posting", newPost);
+      console.log({ newPost });
+      console.log({ res });
+    } catch (error) {
+      console.error("Error creating post", error);
+    }
+  };
 
   const handleInput = (e: any) => {
     const { name, value } = e.target;
@@ -19,17 +25,19 @@ export default function FormPost({ addPost }: any) {
   };
 
   const handleSubmit = (e: any) => {
-    setId(id + 1);
-    if (formData.content == "") {
+    if (formData.content === "") {
       alert("Please write something");
       return;
     }
-    if (formData.username == "") {
-      formData.username = "anoymouz";
-    }
-    setFormData({ ...formData, time: new Date().toISOString(), id: id });
+    const postToSubmit = {
+      ...formData,
+      username: formData.username || "anonymouz",
+    };
+
+    createPost(postToSubmit);
+    window.alert("POST ADDED");
     e.preventDefault();
-    addPost(formData);
+    handleReset();
   };
 
   const handleReset = () => {
